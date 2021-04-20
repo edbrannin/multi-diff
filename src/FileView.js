@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 const Padder = styled.div`
-  padding-bottom: 1em;
+  padding-top: 1em;
 `
 
 const Wrapper = styled.div`
@@ -18,24 +18,41 @@ const FileText = styled.code`
   border-radius: 1em;
 `;
 
-const Path = styled.li`
-  font-family: 'FiraCode Nerd Font', monospace;
+const PathList = styled.ul`
+  padding-inline-start: 1em;
 `;
 
-const FileView = ({ text, paths }) => {
+const Path = styled.li`
+  font-family: 'FiraCode Nerd Font', monospace;
+  list-style-type: none;
+
+`;
+
+const FileView = ({ text, paths, selectPath, deselectPath }) => {
   console.log('Paths is:', paths);
   return (
     <Padder>
       <Wrapper>
         <FileText>{text}</FileText>
-        <ul>
+        <PathList>
           {paths.map(path => (
             <Path key={path}>
-              <input type="checkbox" />
-              {path}
+              <label>
+                <input
+                  type="checkbox"
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      selectPath(path);
+                    } else {
+                      deselectPath(path);
+                    }
+                  }}
+                />
+                {path}
+              </label>
             </Path>
           ))}
-        </ul>
+        </PathList>
       </Wrapper>
     </Padder>
   )
