@@ -21,42 +21,54 @@ const useRefreshingEffect = (func, defaultValue) => {
   const [fetchedAt, setFetchedAt] = useState(Date.now());
   const fetchNow = () => setFetchedAt(Date.now());
   const [value, setValue] = useState(defaultValue);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const callFunc = async () => {
       console.log('Updating, fetchedAt:', fetchedAt);
-      const answer = await func();
-      console.log('Got value:', answer);
-      setValue(answer);
+      try {
+        const answer = await func();
+        console.log('Got value:', answer);
+        setValue(answer);
+      }
+      catch (err) {
+        console.error('Error:', err);
+        setValue(null);
+        setError(err);
+      }
     };
 
     callFunc();
   }, [fetchedAt, func]);
 
-  return [value, fetchNow];
+  return [value, fetchNow, error];
 };
 
 const getFiles = async () => {
-  try {
-    return await invoke('update_files_to_diff', {
-      pattern: '/Users/edbrannin/dev/pints/content-aggregation-service/**/producer.js'
-    })
-  } catch (err) {
-    console.error('Error updating files to diff', err);
-    return [];
-  }
+  return await invoke('update_files_to_diff', {
+    pattern: '/Users/edbrannin/dev/pints/content-aggregation-service/**/producer.js'
+  })
 };
 
+const ErrorDisplay = styled.div`
+  white-space: pre-wrap;
+  font-family: 'FiraCode Nerd Font', monospace;
+  background-color: pink;
+`;
+
 function App() {
-  const [files, triggerUpdateFiles] = useRefreshingEffect(getFiles, []);
+  const [files, triggerUpdateFiles, error] = useRefreshingEffect(getFiles, []);
 
   return (
     <div className="App">
       <Body>
+        {error && (
+          <ErrorDisplay>{error.message}</ErrorDisplay>
+        )}
         <p>
-          {files.length} files
+          {files && files.length} files
         </p>
-        {files.map(({ text, path }) => (
+        {files && files.map(({ text, path }) => (
           <p key={text}>{path} says: {text}</p>
         ))}
         <button onClick={triggerUpdateFiles}>Update</button>
