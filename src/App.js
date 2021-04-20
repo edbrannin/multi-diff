@@ -36,7 +36,7 @@ const useRefreshingEffect = (func, defaultValue) => {
 
 const getFiles = async () => {
   return await invoke('update_files_to_diff', {
-    pattern: '/Users/edbrannin/dev/pints/content-aggregation-service/**/producer.js'
+    pattern: '/redacted/**/producer.js'
   })
 };
 
