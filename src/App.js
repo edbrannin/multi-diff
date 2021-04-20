@@ -1,16 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
-
-const getInvoke = () => {
-  if (window.__TAURI__) {
-    return window.__TAURI__.invoke;
-  }
-  return (...args) => {
-    console.warn(`invoke is missing!  ${args}`);
-    return [];
-  }
-}
-const invoke = getInvoke();
+import { invoke } from '@tauri-apps/api/tauri';
 
 const Body = styled.div`
   background-color: darkgray;
