@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import styled from 'styled-components';
 import { invoke } from '@tauri-apps/api/tauri';
 
@@ -9,7 +9,11 @@ const Body = styled.div`
 
 const useRefreshingEffect = (func, defaultValue) => {
   const [fetchedAt, setFetchedAt] = useState(Date.now());
-  const fetchNow = () => setFetchedAt(Date.now());
+  const [args, setArgs] = useState([]);
+  const fetchNow = (...newArgs) => {
+    setFetchedAt(Date.now());
+    setArgs(newArgs);
+  }
   const [value, setValue] = useState(defaultValue);
   const [error, setError] = useState(null);
 
@@ -17,7 +21,7 @@ const useRefreshingEffect = (func, defaultValue) => {
     const callFunc = async () => {
       console.log('Updating, fetchedAt:', fetchedAt);
       try {
-        const answer = await func();
+        const answer = await func(...args);
         console.log('Got value:', answer);
         setValue(answer);
       }
@@ -29,14 +33,15 @@ const useRefreshingEffect = (func, defaultValue) => {
     };
 
     callFunc();
-  }, [fetchedAt, func]);
+  }, [fetchedAt, func, args]);
 
   return [value, fetchNow, error];
 };
 
-const getFiles = async () => {
+const getFiles = async (pattern) => {
+  console.log('Updating files with pattern:', pattern);
   return await invoke('update_files_to_diff', {
-    pattern: '/redacted/**/producer.js'
+    pattern,
   })
 };
 
@@ -48,6 +53,7 @@ const ErrorDisplay = styled.div`
 
 function App() {
   const [files, triggerUpdateFiles, error] = useRefreshingEffect(getFiles, []);
+  const pathRef = useRef();
 
   return (
     <div className="App">
@@ -55,13 +61,18 @@ function App() {
         {error && (
           <ErrorDisplay>{error.message}</ErrorDisplay>
         )}
-        <p>
-          {files && files.length} files
-        </p>
-        {files && files.map(({ text, path }) => (
-          <p key={text}>{path} says: {text}</p>
-        ))}
-        <button onClick={triggerUpdateFiles}>Update</button>
+        <input ref={pathRef} placeholder="/path/to/dir/**/filename.txt"></input>
+        <button onClick={() => triggerUpdateFiles(pathRef.current.value)}>Update</button>
+        {files && (
+          <div>
+            <p>
+              {files && files.length} files
+          </p>
+            {files.map(({ text, path }) => (
+              <p key={text}>{path} says: {text}</p>
+            ))}
+          </div>
+        )}
       </Body>
     </div>
   );
