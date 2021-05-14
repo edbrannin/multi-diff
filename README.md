@@ -1,3 +1,36 @@
+# Multi-diff
+
+## Status
+
+- [x] Show contents of multiple files
+- [x] Diff 2 selected files
+- [ ] Select files by more than one glob
+- [ ] Select files on the CLI like `multi-diff src/**/whatever.js src/**/something-else.js`
+- [ ] Un-select all files when updating the file list
+
+## Upstream Limitations
+
+- To paste into the Search box, right-click on it and select Paste ([might be fixed](https://github.com/tauri-apps/tauri/issues/1055), try updating)
+
+## Development
+
+Prerequisites:
+- node & yarn
+- [tauri](https://tauri.studio/en/)
+
+```shell
+# run the UI webserver
+yarn start
+# Start the Tauri app
+yarn tauri dev
+```
+
+## Building
+
+```shell
+yarn tauri build
+```
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
